@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Projet 1 — Colorisation Prokudin‑Gorskii</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="site-header">
+    <nav><a href="./index.html">← Accueil</a></nav>
+    <h1>Projet 1 — Coloriser la collection Prokudin‑Gorskii</h1>
+    <p class="tagline">Alignement G/R → B (SSD/NCC) + pyramide d’images</p>
+  </header>
+
+  <main class="container">
+    <section>
+      <h2>Approche</h2>
+      <p>Chaque plaque <em>B, G, R</em> est empilée verticalement. On découpe en 3 images égales,
+         puis on aligne <strong>G</strong> et <strong>R</strong> sur <strong>B</strong> par recherche de translations entières.
+         Pour les petites images, recherche exhaustive dans une fenêtre; pour les grands <code>.tif</code>,
+         on utilise une <strong>pyramide coarse→fine</strong>. Le score est <code>NCC</code> (à maximiser) ou <code>SSD</code> (à minimiser).
+         Les bords sont ignorés au moment du scoring.</p>
+    </section>
+
+    <section>
+      <h2>Résultats</h2>
+      <p>Déposez vos sorties (JPG) dans <code>assets/</code> et éditez la liste ci-dessous.</p>
+      <div class="grid">
+        <!-- Exemple d’item -->
+        <figure class="card">
+          <img src="assets/cathedral.jpg" alt="cathedral">
+          <figcaption>
+            <strong>cathedral</strong><br>
+            Offset G: (x=+5, y=+2) · Offset R: (x=+12, y=+3)
+          </figcaption>
+        </figure>
+
+        <!-- Dupliquez ce bloc pour chaque image -->
+        <!--
+        <figure class="card">
+          <img src="assets/monastery.jpg" alt="monastery">
+          <figcaption>
+            <strong>monastery</strong><br>
+            Offset G: (...) · Offset R: (...)
+          </figcaption>
+        </figure>
+        -->
+      </div>
+    </section>
+
+    <section>
+      <h2>Quand ça rate</h2>
+      <p>Certains clichés (p.ex. <em>emir</em>) ont de fortes différences d’exposition entre canaux.
+         Sans fonctionnalités avancées (bords/gradients), l’alignement peut échouer — c’est acceptable dans la version de base.</p>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>Fait avec un baseline simple (NCC/SSD + pyramide). Adaptez couleurs/typo ci‑dessous.</p>
+  </footer>
+</body>
+</html>

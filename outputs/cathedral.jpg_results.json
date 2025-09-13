@@ -1,0 +1,17 @@
+[
+  {
+    "input": "cathedral.jpg",
+    "output": "cathedral.jpg",
+    "metric": "ncc",
+    "offsets": {
+      "green": [
+        2,
+        5
+      ],
+      "red": [
+        3,
+        11
+      ]
+    }
+  }
+]
