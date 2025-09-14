@@ -1,27 +1,18 @@
-# CS180 Project 1 — Starter Kit
+# CS180/280A — Project 1  
+**Colorizing the Prokudin-Gorskii Collection**  
+Author: **Antoine Peylet**
 
-This folder contains a working baseline (single-scale + pyramid) and a tiny website template.
+This repository contains my baseline solution for re-colorizing early 1900s glass-plate photographs scanned as vertically stacked **B/G/R** grayscale channels. I split the plate into thirds and align **G** and **R** to **B** using **integer translations** only, scored with **NCC** (default) or **SSD**. Small JPGs run an exhaustive search; large TIFFs are handled with a **coarse→fine image pyramid** for speed and robustness.
 
-## 1) Installer l'environnement
-```bash
-python -m venv .venv
-source .venv/bin/activate  # Windows: .venv\Scripts\activate
-pip install -r code/requirements.txt
-```
+## What I implemented
+- Split the plate into equal thirds (**B, G, R**) and use **B** as the reference.
+- Alignment by **integer (x, y) translations** only (no rotation/scale).
+- Scoring metrics: **NCC** (maximize) and **SSD/L2** (minimize).
+- **Border crop** (~10–12%) during scoring to avoid decorative frames skewing the metric.
+- **Single-scale** exhaustive search for small images (default ±15 px window).
+- **Pyramid** for large TIFFs: downsample ×0.5 until the min dimension ≲ 400 px, align coarsest → upsample shift → refine at each level.
+- Outputs: aligned RGB `.jpg` files and a `results.json` with per-image **offsets** reported as `(x, y)` for G→B and R→B.
 
-## 2) Mettre les données
-Téléchargez `data.zip` depuis la page du cours et décompressez-la dans `data/` à la racine du repo (ne commitez pas les `.tif`).
-Placez les images `.jpg` / `.tif` ici: `data/`
+> This is the baseline only (no extra credit features).
 
-## 3) Lancer l'alignement
-```bash
-python code/colorize.py data/cathedral.jpg outputs/cathedral.jpg
-python code/colorize.py data/ outputs/ --metric ncc --levels auto
-```
-
-Les sorties arrivent dans `outputs/` + un `results.json` récapitulant les offsets.
-
-## 4) Publier une page GitHub Pages
-Le site d'exemple est dans `website/`. Copiez vos résultats (JPG) dans `website/assets/` et éditez `website/project1.html`.
-Activez **GitHub Pages** (Settings → Pages → Deploy from branch) et sélectionnez la branche, dossier `/website` (ou `/docs`).
-
+## Repository layout
