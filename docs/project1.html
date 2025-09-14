@@ -1,34 +1,47 @@
 <!doctype html>
-<html lang="fr">
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Projet 1 — Colorisation Prokudin‑Gorskii</title>
+  <title>Project 1 — Colorizing the Prokudin-Gorskii Collection</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <header class="site-header">
-    <nav><a href="./index.html">← Accueil</a></nav>
-    <h1>Projet 1 — Coloriser la collection Prokudin‑Gorskii</h1>
-    <p class="tagline">Alignement G/R → B (SSD/NCC) + pyramide d’images</p>
+    <nav><a href="./index.html">← Home</a></nav>
+    <h1>Project 1 — Colorizing the Prokudin-Gorskii Collection</h1>
+    <p class="tagline">Align G & R to B (NCC/SSD) with a coarse-to-fine image pyramid</p>
   </header>
 
   <main class="container">
     <section>
-      <h2>Approche</h2>
-      <p>Chaque plaque <em>B, G, R</em> est empilée verticalement. On découpe en 3 images égales,
-         puis on aligne <strong>G</strong> et <strong>R</strong> sur <strong>B</strong> par recherche de translations entières.
-         Pour les petites images, recherche exhaustive dans une fenêtre; pour les grands <code>.tif</code>,
-         on utilise une <strong>pyramide coarse→fine</strong>. Le score est <code>NCC</code> (à maximiser) ou <code>SSD</code> (à minimiser).
-         Les bords sont ignorés au moment du scoring.</p>
+      <h2>Overview</h2>
+      <p>Hi, I’m Antoine Peylet. In this project I re-colored scanned glass-plate photographs from the early 1900s.
+      Each plate stacks three grayscale exposures (Blue, Green, Red) vertically. My baseline splits the plate into B/G/R,
+      then aligns <strong>G</strong> and <strong>R</strong> to <strong>B</strong> using pure integer translations. I support both
+      <code>NCC</code> (maximize) and <code>SSD/L2</code> (minimize). Small JPGs are handled with an exhaustive window
+      search; large TIFFs use a <strong>coarse→fine pyramid</strong> for speed and robustness.</p>
     </section>
 
     <section>
-      <h2>Résultats</h2>
-      <p>Déposez vos sorties (JPG) dans <code>assets/</code> et éditez la liste ci-dessous.</p>
+      <h2>Method (what I actually implemented)</h2>
+      <ul>
+        <li><strong>Split</strong> the plate into equal thirds (B, G, R) and use <strong>B</strong> as reference.</li>
+        <li><strong>Score</strong> alignment with <em>NCC</em> (default) or <em>SSD</em>, ignoring a small border (10%) to avoid frames.</li>
+        <li><strong>Single-scale search</strong> on small images: exhaustive shifts in a ±15px window.</li>
+        <li><strong>Pyramid</strong> on large TIFFs: downsample ×0.5 until the min dimension ≲ 400px, align at the coarsest level, then
+            upsample the shift and refine locally at each finer level.</li>
+        <li><strong>Shifts</strong> are integer (no rotation/scale), applied with circular shifts and then stacked as RGB.</li>
+      </ul>
+      <p><em>Hyper-parameters I found reasonable:</em> window=15, margin=0.10–0.12, metric=NCC, auto levels for tiffs.</p>
+    </section>
+
+    <section>
+      <h2>Results</h2>
+      <p>I show one thumbnail per image with the translation offsets I actually used (x, y). Offsets refer to aligning G/R <em>to</em> B.</p>
       <div class="grid">
 <figure class="card">
-  <img src="assets/cathedral.jpg" alt="cathedral.jpg">
+  <img src="assets/cathedral.jpg" alt="cathedral">
   <figcaption>
     <strong>cathedral</strong><br>
     Offset G: (x=+2, y=+5) · Offset R: (x=+3, y=+11)
@@ -36,7 +49,7 @@
 </figure>
 
 <figure class="card">
-  <img src="assets/church.jpg" alt="church.jpg">
+  <img src="assets/church.jpg" alt="church">
   <figcaption>
     <strong>church</strong><br>
     Offset G: (x=+4, y=+25) · Offset R: (x=-4, y=+58)
@@ -44,7 +57,7 @@
 </figure>
 
 <figure class="card">
-  <img src="assets/emir.jpg" alt="emir.jpg">
+  <img src="assets/emir.jpg" alt="emir">
   <figcaption>
     <strong>emir</strong><br>
     Offset G: (x=+24, y=+49) · Offset R: (x=-205, y=+141)
@@ -52,7 +65,7 @@
 </figure>
 
 <figure class="card">
-  <img src="assets/harvesters.jpg" alt="harvesters.jpg">
+  <img src="assets/harvesters.jpg" alt="harvesters">
   <figcaption>
     <strong>harvesters</strong><br>
     Offset G: (x=+17, y=+60) · Offset R: (x=+13, y=+124)
@@ -60,7 +73,7 @@
 </figure>
 
 <figure class="card">
-  <img src="assets/icon.jpg" alt="icon.jpg">
+  <img src="assets/icon.jpg" alt="icon">
   <figcaption>
     <strong>icon</strong><br>
     Offset G: (x=+17, y=+41) · Offset R: (x=+23, y=+89)
@@ -68,7 +81,7 @@
 </figure>
 
 <figure class="card">
-  <img src="assets/italil.jpg" alt="italil.jpg">
+  <img src="assets/italil.jpg" alt="italil">
   <figcaption>
     <strong>italil</strong><br>
     Offset G: (x=+21, y=+38) · Offset R: (x=+35, y=+76)
@@ -76,7 +89,7 @@
 </figure>
 
 <figure class="card">
-  <img src="assets/lastochikino.jpg" alt="lastochikino.jpg">
+  <img src="assets/lastochikino.jpg" alt="lastochikino">
   <figcaption>
     <strong>lastochikino</strong><br>
     Offset G: (x=-2, y=-3) · Offset R: (x=-9, y=+75)
@@ -84,7 +97,7 @@
 </figure>
 
 <figure class="card">
-  <img src="assets/lugano.jpg" alt="lugano.jpg">
+  <img src="assets/lugano.jpg" alt="lugano">
   <figcaption>
     <strong>lugano</strong><br>
     Offset G: (x=-16, y=+41) · Offset R: (x=-29, y=+93)
@@ -92,7 +105,7 @@
 </figure>
 
 <figure class="card">
-  <img src="assets/melons.jpg" alt="melons.jpg">
+  <img src="assets/melons.jpg" alt="melons">
   <figcaption>
     <strong>melons</strong><br>
     Offset G: (x=+11, y=+82) · Offset R: (x=+13, y=+178)
@@ -100,7 +113,7 @@
 </figure>
 
 <figure class="card">
-  <img src="assets/monastery.jpg" alt="monastery.jpg">
+  <img src="assets/monastery.jpg" alt="monastery">
   <figcaption>
     <strong>monastery</strong><br>
     Offset G: (x=+2, y=-3) · Offset R: (x=+2, y=+3)
@@ -108,7 +121,7 @@
 </figure>
 
 <figure class="card">
-  <img src="assets/self_portrait.jpg" alt="self_portrait.jpg">
+  <img src="assets/self_portrait.jpg" alt="self_portrait">
   <figcaption>
     <strong>self_portrait</strong><br>
     Offset G: (x=+29, y=+79) · Offset R: (x=+37, y=+176)
@@ -116,7 +129,7 @@
 </figure>
 
 <figure class="card">
-  <img src="assets/siren.jpg" alt="siren.jpg">
+  <img src="assets/siren.jpg" alt="siren">
   <figcaption>
     <strong>siren</strong><br>
     Offset G: (x=-6, y=+49) · Offset R: (x=-25, y=+96)
@@ -124,7 +137,7 @@
 </figure>
 
 <figure class="card">
-  <img src="assets/three_generations.jpg" alt="three_generations.jpg">
+  <img src="assets/three_generations.jpg" alt="three_generations">
   <figcaption>
     <strong>three_generations</strong><br>
     Offset G: (x=+14, y=+53) · Offset R: (x=+11, y=+112)
@@ -132,24 +145,36 @@
 </figure>
 
 <figure class="card">
-  <img src="assets/tobolsk.jpg" alt="tobolsk.jpg">
+  <img src="assets/tobolsk.jpg" alt="tobolsk">
   <figcaption>
     <strong>tobolsk</strong><br>
     Offset G: (x=+3, y=+3) · Offset R: (x=+3, y=+6)
   </figcaption>
 </figure>
-</div>
+      </div>
     </section>
 
     <section>
-      <h2>Quand ça rate</h2>
-      <p>Certains clichés (p.ex. <em>emir</em>) ont de fortes différences d’exposition entre canaux.
-         Sans fonctionnalités avancées (bords/gradients), l’alignement peut échouer — c’est acceptable dans la version de base.</p>
+      <h2>What went wrong (and why that’s okay)</h2>
+      <p>Some scenes (classic example: <em>emir</em>) have very different exposure/contrast across color channels.
+      When you score on raw intensities, NCC/SSD can be misled and the alignment may drift.
+      That’s expected for a basic baseline without gradient/edge features or automatic cropping. I kept one or two imperfect
+      results to document these failure modes honestly.</p>
+    </section>
+
+    <section>
+      <h2>Notes & Lessons</h2>
+      <ul>
+        <li><strong>Border crop</strong> matters: a small margin prevents ornate frames from dominating the score.</li>
+        <li><strong>Pyramids</strong> are a big win: large TIFFs finish quickly and local minima are less of an issue.</li>
+        <li><strong>NCC vs SSD</strong>: NCC was slightly more reliable for me on varied exposure; SSD works fine on the small JPGs.</li>
+        <li><strong>Future work (not implemented):</strong> gradient-domain scoring, auto-cropping, white-balance, and edge-based alignment.</li>
+      </ul>
     </section>
   </main>
 
   <footer class="site-footer">
-    <p>Fait avec un baseline simple (NCC/SSD + pyramide). Adaptez couleurs/typo ci‑dessous.</p>
+    <p>Implemented by Antoine Peylet — baseline only (NCC/SSD + pyramid). Code: <code>code/colorize.py</code>. Feel free to reach out!</p>
   </footer>
 </body>
 </html>

@@ -1,10 +1,10 @@
 /* Palette personnalisable */
 :root{
-  --bg:#0b1220;
-  --fg:#e8ecf3;
-  --accent:#5eead4; /* vert-menthe */
+  --bg:#0b1020;
+  --fg:#e6eefc;
+  --accent:#8b5cf6;  /* violet */
   --muted:#9fb3c8;
-  --card:#151e32;
+  --card:#111a2e;
   --shadow: rgba(0,0,0,.35);
 }
 
