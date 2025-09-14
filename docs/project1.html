@@ -16,25 +16,22 @@
   <main class="container">
     <section>
       <h2>Overview</h2>
-      <p>Hi, I’m Antoine Peylet. In this project I re-colored scanned glass-plate photographs from the early 1900s.
-      Each plate stacks three grayscale exposures (Blue, Green, Red) vertically. My baseline splits the plate into B/G/R,
-      then aligns <strong>G</strong> and <strong>R</strong> to <strong>B</strong> using pure integer translations. I support both
-      <code>NCC</code> (maximize) and <code>SSD/L2</code> (minimize). Small JPGs are handled with an exhaustive window
-      search; large TIFFs use a <strong>coarse→fine pyramid</strong> for speed and robustness.</p>
-    </section>
+<p>Hi, I’m <strong>Antoine Peylet</strong>. For this assignment I re-colored early 1900s scans by Sergey Prokudin-Gorskii.
+Each scan stacks three grayscale exposures (Blue, Green, Red) vertically. I split the plate and align <strong>G</strong> and <strong>R</strong> to <strong>B</strong> with pure integer translations. 
+I support <code>NCC</code> (maximize) and <code>SSD/L2</code> (minimize). Small JPGs run a brute-force search; large TIFFs use a <strong>coarse→fine pyramid</strong> to stay fast and stable.</p>
+</section>
 
     <section>
-      <h2>Method (what I actually implemented)</h2>
-      <ul>
-        <li><strong>Split</strong> the plate into equal thirds (B, G, R) and use <strong>B</strong> as reference.</li>
-        <li><strong>Score</strong> alignment with <em>NCC</em> (default) or <em>SSD</em>, ignoring a small border (10%) to avoid frames.</li>
-        <li><strong>Single-scale search</strong> on small images: exhaustive shifts in a ±15px window.</li>
-        <li><strong>Pyramid</strong> on large TIFFs: downsample ×0.5 until the min dimension ≲ 400px, align at the coarsest level, then
-            upsample the shift and refine locally at each finer level.</li>
-        <li><strong>Shifts</strong> are integer (no rotation/scale), applied with circular shifts and then stacked as RGB.</li>
-      </ul>
-      <p><em>Hyper-parameters I found reasonable:</em> window=15, margin=0.10–0.12, metric=NCC, auto levels for tiffs.</p>
-    </section>
+      <h2>Method</h2>
+<ul>
+  <li><strong>Split</strong> the plate into equal thirds (B, G, R), use <strong>B</strong> as reference.</li>
+  <li><strong>Scoring</strong>: <em>NCC</em> (default) or <em>SSD</em>, ignoring ~10% border to avoid frames.</li>
+  <li><strong>Single-scale</strong> on small images: exhaustive window (±15px).</li>
+  <li><strong>Pyramid</strong> on large TIFFs: downsample ×0.5 until min(dim) ≲ 400px → align coarsest → upsample shift and refine at each level.</li>
+  <li><strong>Shifts</strong> are integer (no rotation/scale), applied via circular shifts; channels then stacked as RGB.</li>
+</ul>
+<p><em>My default settings:</em> window = 15, margin = 0.10–0.12, metric = NCC, levels = auto.</p>
+</section>
 
     <section>
       <h2>Results</h2>
@@ -155,22 +152,21 @@
     </section>
 
     <section>
-      <h2>What went wrong (and why that’s okay)</h2>
-      <p>Some scenes (classic example: <em>emir</em>) have very different exposure/contrast across color channels.
-      When you score on raw intensities, NCC/SSD can be misled and the alignment may drift.
-      That’s expected for a basic baseline without gradient/edge features or automatic cropping. I kept one or two imperfect
-      results to document these failure modes honestly.</p>
-    </section>
+      <h2>What went wrong (and what I learned)</h2>
+<p>Some scenes (e.g., <em>emir</em>) have very different exposure/contrast across channels. Intensity-based scores can drift there,
+so a few results are imperfect. That’s expected for a minimal baseline without gradient/edge features or auto-cropping.
+I kept them to document the failure modes and decisions I’d improve next.</p>
+</section>
 
     <section>
       <h2>Notes & Lessons</h2>
-      <ul>
-        <li><strong>Border crop</strong> matters: a small margin prevents ornate frames from dominating the score.</li>
-        <li><strong>Pyramids</strong> are a big win: large TIFFs finish quickly and local minima are less of an issue.</li>
-        <li><strong>NCC vs SSD</strong>: NCC was slightly more reliable for me on varied exposure; SSD works fine on the small JPGs.</li>
-        <li><strong>Future work (not implemented):</strong> gradient-domain scoring, auto-cropping, white-balance, and edge-based alignment.</li>
-      </ul>
-    </section>
+<ul>
+  <li><strong>Border crop matters</strong>: trimming a small margin prevents ornate frames from dominating the score.</li>
+  <li><strong>Pyramids help</strong>: large TIFFs finish quickly and are less sensitive to local minima.</li>
+  <li><strong>NCC vs SSD</strong>: NCC was slightly more robust for my images; SSD works fine on clean small JPGs.</li>
+  <li><strong>Next steps</strong>: gradient-domain scoring, edge features, auto-crop, simple white-balance.</li>
+</ul>
+</section>
   </main>
 
   <footer class="site-footer">
