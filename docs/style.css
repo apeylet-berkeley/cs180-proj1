@@ -33,6 +33,6 @@ h2{margin:2rem 0 .5rem;font-size:1.25rem;color:var(--accent)}
 .card figcaption{padding:.8rem 1rem;color:var(--muted)}
 .card figcaption strong{color:var(--fg);display:block;margin-bottom:2px}
 
-/* Simple list on Home */
+/* List Home */
 .link-list{list-style:none;margin:.5rem 0 0;padding:0}
 .link-list li{margin:.25rem 0}
