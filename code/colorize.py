@@ -1,20 +1,7 @@
 #!/usr/bin/env python3
 """
 CS180/280A Project 1 — Colorizing the Prokudin‑Gorskii Collection
-Minimal but robust baseline (no "bells & whistles"): single-scale + image pyramid.
 
-Usage examples:
-  # Single image → outputs/cathedral.jpg
-  python colorize.py data/cathedral.jpg outputs/cathedral.jpg
-
-  # Folder of images (process *.jpg, *.tif)
-  python colorize.py data/ outputs/ --metric ncc --levels auto
-
-Notes:
-- Aligns G and R to B (the plates are stacked vertically in B, G, R order).
-- Supports SSD (L2) and NCC metrics. Defaults to NCC.
-- Pyramid levels computed automatically for large .tif unless you set --levels.
-- Ignores borders when scoring (to avoid frames messing up metrics).
 """
 
 import argparse
@@ -32,16 +19,13 @@ from skimage import io, img_as_float32, transform, util
 def load_plate(path: str) -> np.ndarray:
     """Read image as float32 in [0,1]. Handles 8-bit JPG and 16-bit TIFF."""
     im = io.imread(path)
-    # Convert to float32 [0,1] without clipping
     if im.dtype == np.uint8:
         im = im.astype(np.float32) / 255.0
     elif im.dtype == np.uint16:
         im = im.astype(np.float32) / 65535.0
     else:
         im = img_as_float32(im)
-    # Ensure 2D (grayscale)
     if im.ndim == 3:
-        # Some readers might already stack into channels; take luminance if so.
         im = im[..., 0].astype(np.float32)
     return im
 
@@ -49,7 +33,7 @@ def load_plate(path: str) -> np.ndarray:
 def split_bgr(im: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     """Given a vertically stacked plate, return (b, g, r)."""
     H = im.shape[0] // 3
-    im = im[: 3 * H, :]  # guard in case of off-by-one
+    im = im[: 3 * H, :] 
     b = im[0:H, :]
     g = im[H:2*H, :]
     r = im[2*H:3*H, :]
@@ -96,7 +80,6 @@ def align_single_scale(moving: np.ndarray, ref: np.ndarray, win: int = 15,
     m = crop_interior(moving, margin_frac)
     r = crop_interior(ref, margin_frac)
 
-    # Pre-allocate for speed
     best_dy, best_dx = 0, 0
     if metric == "ssd":
         best_score = float("inf")
@@ -131,7 +114,6 @@ def align_pyramid(moving: np.ndarray, ref: np.ndarray, base_win: int = 15, level
     Coarse-to-fine alignment. If levels is None/"auto", compute until min dim < ~400.
     Returns (total_dy, total_dx).
     """
-    # Determine levels automatically
     if levels in (None, "auto"):
         levels = 0
         h, w = moving.shape[:2]
@@ -139,25 +121,19 @@ def align_pyramid(moving: np.ndarray, ref: np.ndarray, base_win: int = 15, level
             h, w = int(h * 0.5), int(w * 0.5)
             levels += 1
 
-    # Build pyramids (lists: level 0 = finest, last = coarsest)
     mov_pyr = [moving.astype(np.float32)]
     ref_pyr = [ref.astype(np.float32)]
     for _ in range(levels):
         mov_pyr.append(downsample(mov_pyr[-1], 0.5))
         ref_pyr.append(downsample(ref_pyr[-1], 0.5))
 
-    # Start from coarsest level
     total_dy, total_dx = 0, 0
     for lvl in range(len(mov_pyr) - 1, -1, -1):
         m = mov_pyr[lvl]
         r = ref_pyr[lvl]
 
-        # At finer scales, search near the upscaled previous shift
-        # Increase window a bit at coarse, tightened at fine
         win = max(5, int(base_win * (0.75 if lvl == 0 else 1.0)))
 
-        # Apply current guess to moving image, then refine locally
-        # We refine by searching around the current (dy, dx) +/- win
         best_dy, best_dx, best_score = 0, 0, -1e18
         if metric == "ssd":
             best_score = float("inf")
@@ -178,7 +154,6 @@ def align_pyramid(moving: np.ndarray, ref: np.ndarray, base_win: int = 15, level
 
         total_dy, total_dx = best_dy, best_dx
 
-        # Upscale the current best shift by 2 for the next (finer) level
         if lvl > 0:
             total_dy *= 2
             total_dx *= 2
@@ -209,7 +184,7 @@ def compose_and_align(plate: np.ndarray, metric: str = "ncc",
     r_aligned = shift_image(r, dy_r, dx_r)
     rgb = stack_rgb(r_aligned, g_aligned, b)
 
-    offsets = {"green": [int(dx_g), int(dy_g)], "red": [int(dx_r), int(dy_r)]}  # (x, y) per spec
+    offsets = {"green": [int(dx_g), int(dy_g)], "red": [int(dx_r), int(dy_r)]} 
     return rgb, offsets
 
 
@@ -276,7 +251,6 @@ def main():
                 results.append(res)
                 print(f"Saved → {out_file}  (offsets: {res['offsets']})")
 
-    # Save a small JSON log for the website
     with open(out_path / "results.json" if out_path.is_dir() else Path(str(out_path) + "_results.json"), "w") as fp:
         json.dump(results, fp, indent=2)
 
